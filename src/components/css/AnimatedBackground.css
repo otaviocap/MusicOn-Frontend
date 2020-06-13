@@ -1,0 +1,63 @@
+.waves {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    overflow: hidden;
+    user-select: none;
+}
+
+.waves img {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    opacity: .5;
+}
+
+.waves img:nth-child(1) {
+    z-index: -1;
+    animation: motion1 8s ease-in-out 0s infinite alternate both;
+}
+.waves img:nth-child(2) {
+    z-index: -2;
+    animation: motion2 5s ease-in-out 0s infinite alternate both;
+}
+.waves img:nth-child(3) {
+    z-index: -3;
+    animation: motion3 10s ease-in-out 0s infinite alternate both;
+}
+
+@keyframes motion1 {
+    from {
+        height: 50%;
+        transform: translateX(-100px);
+    } 
+    to {
+        height: 51%;
+        transform: translateX(0px);
+    }
+}
+
+@keyframes motion2 {
+    from {
+        height: 50%;
+        transform: translateX(0px);
+    } 
+    to {
+        height: 45%;
+        transform: translateX(-100px);
+    }
+}
+
+@keyframes motion3 {
+    from {
+        height: 50%;
+        transform: translateY(0px);
+    } 
+    to {
+        height: 55%;
+        transform: translateY(10px);
+    }
+}
