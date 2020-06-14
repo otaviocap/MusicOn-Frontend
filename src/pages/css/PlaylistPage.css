@@ -1,0 +1,16 @@
+.playlists {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    overflow: hidden;
+}
+
+.item {
+    padding: 5%;
+}

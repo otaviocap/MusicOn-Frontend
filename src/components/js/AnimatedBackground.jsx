@@ -11,7 +11,7 @@ export default class AnimatedBackground extends React.Component {
 
     render() {
         return (
-            <div class="waves">
+            <div className="waves">
                 <img src={Wave1} alt=""/>
                 <img src={Wave2} alt=""/>
                 <img src={Wave3} alt=""/>
