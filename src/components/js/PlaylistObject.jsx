@@ -11,18 +11,18 @@ export default class Playlist extends React.Component {
         this.props = props
     }
 
+
     render() {
         return (
-            <div className="playlist-container">
-                <div className="information" style={{"background": `linear-gradient(45deg, ${this.props.color1} 0%, ${this.props.color2} 100%)`}}>
+            <div className="playlist-container" onClick={this.props.callback ? this.props.callback : ()=>{console.log("Callback not registered")}}>
+                <div className="backgroundImage" style={{"backgroundImage": `url(${this.props.img})`}} />
+                <div className="information">
                     <p>{this.props.name.length > 25 ? this.props.name.slice(0, 22)+"..." : this.props.name}</p>
-                    <p>{this.props.name.length > 25 ? this.props.name.slice(0, 22)+"..." : this.props.name}</p>
-                    <p>{this.props.name.length > 25 ? this.props.name.slice(0, 22)+"..." : this.props.name}</p>
-                    
+                    {this.props.icon !== "" ? <p id="icon">{[...this.props.icon].length > 1 ? [...this.props.icon][0] : this.props.icon}</p> : null}
                 </div>
                 <div className="disc">
                         <div className="imgWrapper">
-                        <img src={this.props.img} alt="" />
+                            <img src={this.props.img} alt="" />
                         </div>
                     </div>
             </div>
@@ -32,7 +32,8 @@ export default class Playlist extends React.Component {
 
 Playlist.propTypes = {
     name: PropTypes.string,
-    img: PropTypes.object,
-    color1: PropTypes.any,
-    color2: PropTypes.any
+    icon: PropTypes.string,
+    img: PropTypes.any,
+    spotifyUrl: PropTypes.string,
+    callback: PropTypes.func
 }

@@ -3,6 +3,19 @@
     padding: 0;
 }
 
+.playlist-container .backgroundImage {
+    border: 1px solid white;
+    position: relative;
+    width: 10vw;
+    height: 10vw;
+    filter: blur(1px);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    top: 10vw;
+    z-index: -1;
+    overflow: hidden;
+}
 .playlist-container .information {
     border: 1px solid white;
     width: 10vw;
@@ -12,11 +25,17 @@
     justify-content: center;
     flex-direction: column;
     text-align: center;
+    overflow: hidden;
 }
+
+.playlist-container .information #icon{
+    font-size: 3vw;
+}
+
 
 .playlist-container:hover > .disc {
     left: 8vw;
-    transform: rotateZ(180deg);
+    transform: rotateZ(90deg);
 }
 
 .playlist-container p {
@@ -25,7 +44,7 @@
 }
 
 .disc {
-    z-index: -1;
+    z-index: -2;
     padding: 0;
     margin: 0;
     top: -9vw;

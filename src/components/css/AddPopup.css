@@ -1,0 +1,41 @@
+
+.addPopup-container {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    flex-direction: column;
+    display: flex;
+}
+
+.addPopup-container .background {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background-color: black;
+    opacity: .8;
+    overflow: hidden;
+}
+
+.addPopup-container .form-container {
+    width: auto;
+    height: auto;
+}
+
+.addPopup-container .form-container input[type=text] {
+    margin-bottom: 1%;
+}
+
+.addPopup-container  .form-container p {
+    width: 60%;
+    font-family: 'Roboto';
+    font-size: xx-large;
+    font-weight: normal;
+}

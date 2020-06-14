@@ -12,7 +12,9 @@ export default function LoginPage({ history }) {
     
     function handleSubmit(event) {
         event.preventDefault()
-        history.push(`/${username}/playlists`);
+        if (username) {
+            history.push(`/user/${username}/playlists`);
+        }
     }
 
     return (

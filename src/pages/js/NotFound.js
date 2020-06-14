@@ -2,9 +2,9 @@ import React from 'react';
 import logo from '../../assets/svg/Logo.svg'
 import { Link } from 'react-router-dom'
 
-import "../css/NotFound.css"
+import "../css/Base.css"
 
-export default function createNotFoundPage() {
+export default function NotFoundPage() {
     return (
     <div className="container">
         <Link to="/" className="link">
