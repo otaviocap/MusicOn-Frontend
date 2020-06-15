@@ -58,8 +58,11 @@ export default class PlaylistManager extends React.Component {
                 </div>
                 {!this.state.addPopup ? null : 
                     <AddPopup 
+                    message="To add an playlist, please copy the spotify URL and make sure the playlist is public"
+                    buttonValue="Add"
                     fail={()=>{this.setState({addPopup: false})}}
                     success={(url)=>{console.log(url);this.setState({addPopup: false})}}
+                    withForm
                     />
                 }
             </div>
@@ -67,6 +70,6 @@ export default class PlaylistManager extends React.Component {
     }
 }
 
-PlaylistManager.propTypes = {
-    history: PropTypes.array
+PlaylistManager.prototype.propTypes = {
+    history: PropTypes.any
 }

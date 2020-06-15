@@ -25,7 +25,7 @@ export default function RegisterPage() {
                     <img src={Logo} alt="MusicOn" id="logo"/>
                 </Link>
                 <form onSubmit={handleSubmit}>
-                    <input type="text" placeholder="Username" autoComplete="username" aria-label="username" prefix="teste"
+                    <input type="text" placeholder="Username" autoComplete="username" aria-label="username"
                     onChange={event => setUsername(event.target.value)}
                     />
                     <input type="text" placeholder="Email" autoComplete="email" aria-label="email"

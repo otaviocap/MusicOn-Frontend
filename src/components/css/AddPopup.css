@@ -33,9 +33,25 @@
     margin-bottom: 1%;
 }
 
-.addPopup-container  .form-container p {
+.addPopup-container .form-container p {
     width: 60%;
     font-family: 'Roboto';
     font-size: xx-large;
     font-weight: normal;
+}
+
+.form-container input[type=button] {
+    width: 5vw;
+    min-width: 250px;
+    height: 4vh;
+    min-height: 40px;
+    border-color: transparent;
+    border-radius: 30px;
+    background-color: var(--c-green);
+    font-size: x-large;
+    font-family: Staatliches, Roboto, Arial, Helvetica, sans-serif;
+    color: var(--bg-color);
+    cursor: pointer;
+    margin-top: 2%;
+    margin-bottom: 2%;
 }

@@ -76,6 +76,7 @@
     margin-bottom: 2%;
 }
 
+
 .form-container .link {
     margin: 0;
     padding: 0;
@@ -139,3 +140,6 @@
     font-weight: bold;
 }
 
+.add-margin {
+    margin: 1%
+}

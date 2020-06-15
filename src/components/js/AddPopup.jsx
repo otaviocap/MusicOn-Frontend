@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import '../css/AddPopup.css'
 
-export default function PlaylistManager({success, fail}) {
+export default function AddPopup({success, fail, withForm, message, buttonValue}) {
 
     const [url, setUrl] = useState("")
 
@@ -19,19 +19,23 @@ export default function PlaylistManager({success, fail}) {
         <div className="addPopup-container">
             <div className="background" onClick={fail}/>
             <div className="form-container">
-                <p>To add an playlist, please copy the spotify URL and make sure the playlist is <u><b>public</b></u></p>
+                <p>{message}</p>
+                {withForm ? 
                 <form onSubmit={handleSubmit}>
                     <input type="text" placeholder="Spotify URL"
                         onChange={event => setUrl(event.target.value)}
                     />
-                    <input type="submit" value="Add" />
-                </form>
+                    <input type="submit" value={buttonValue}/>
+                </form> : <input type="button" value={buttonValue} onClick={fail}/>}
             </div>
         </div>
     )
 }
 
-PlaylistManager.prototype.propTypes = {
+AddPopup.prototype.propTypes = {
     success: PropTypes.func,
-    fail: PropTypes.func
+    fail: PropTypes.func,
+    withForm: PropTypes.bool,
+    message: PropTypes.any,
+    buttonValue: PropTypes.string
 }
