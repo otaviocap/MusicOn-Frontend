@@ -15,9 +15,9 @@ export default function Routes() {
             <Switch>
                 <Route exact path="/" component={LoginPage}/>
                 <Route exact path="/register" component={RegisterPage}/>
-                <Route path="/user/:id/playlists" component={PlaylistChooser}/>
-                <Route path="/game/:id/enter/" component={EnterRoom}/>
-                <Route path="/game/:id/" component={GamePage}/>
+                <Route exact path="/user/:id/" component={PlaylistChooser}/>
+                <Route exact path="/game/:id/enter/" component={EnterRoom}/>
+                <Route exact path="/game/:id/" component={GamePage}/>
                 <Route component={NotFound} />
             </Switch>
         </BrowserRouter>

@@ -24,9 +24,22 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    text-overflow: ellipsis;
     text-align: center;
     overflow: hidden;
 }
+
+.playlist-container #deleteButton {
+    position: relative;
+    left: 40%;
+    bottom: 30%;
+    font-size: x-large;
+    color: white;
+    margin: -5%;
+    cursor: crosshair;
+
+}
+
 
 .playlist-container .information #icon{
     font-size: 3vw;
@@ -39,7 +52,7 @@
 }
 
 .playlist-container p {
-    font-size: 1.5vw;
+    font-size: 1vw;
     margin: 5%
 }
 

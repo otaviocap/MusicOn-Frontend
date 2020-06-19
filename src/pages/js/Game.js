@@ -83,7 +83,7 @@ export default function Game() {
             <AddPopup 
                 message="To invite your friends to this room, please send the url"
                 buttonValue="Ok"
-                fail={()=>{setPopUp(false)}}
+                onExit={()=>{setPopUp(false)}}
             /> : null
             }
         </div>

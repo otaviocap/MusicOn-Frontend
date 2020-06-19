@@ -9,6 +9,9 @@ export default class Playlist extends React.Component {
     constructor(props) {
         super(props)
         this.props = props
+        this.state = {
+            overRemove: false
+        }
     }
 
 
@@ -35,5 +38,6 @@ Playlist.propTypes = {
     icon: PropTypes.string,
     img: PropTypes.any,
     spotifyUrl: PropTypes.string,
-    callback: PropTypes.func
+    callback: PropTypes.func,
+    remove: PropTypes.func
 }

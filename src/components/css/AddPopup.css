@@ -24,6 +24,14 @@
     overflow: hidden;
 }
 
+.add-container .error {
+    color: red;
+    margin: 1%;
+    font-weight: bold;
+    font-size: large;
+    letter-spacing: .1vw;
+}
+
 .addPopup-container .form-container {
     width: auto;
     height: auto;

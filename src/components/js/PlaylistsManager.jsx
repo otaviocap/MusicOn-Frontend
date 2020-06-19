@@ -3,13 +3,16 @@ import Playlist from './PlaylistObject'
 import AddBackground from '../../assets/jpg/add-background.jpg'
 import AddPopup from './AddPopup'
 import PropTypes from 'prop-types'
+import api from '../../services/Api'
 
 import '../css/PlaylistManager.css'
 
 export default class PlaylistManager extends React.Component {
 
+
     constructor(props) {
         super(props)
+
         this.state = {
             addPopup: false,
             playlists: [
@@ -17,24 +20,54 @@ export default class PlaylistManager extends React.Component {
                     name: "Add",
                     icon: "+",
                     img: `${AddBackground}`,
+                    playlistId: "0",
                     callback: () => {this.setState({addPopup: true})}
                 },
-                {
-                    name: "Rock",
-                    icon: "🎸",
-                    img:"https://upload.wikimedia.org/wikipedia/en/d/df/RedHotChiliPeppersCalifornication.jpg",
-                    callback: ()=> {this.props.history.push("/game/:id/")}
-                }
                 
             ]
         }
     }
 
-    addPlaylist(playlist) {
-        this.setState({
-            playlist: this.state.playlists.push(playlist)
-        })
+    async handlePlaylistRemove(playlistId) {
+        try {
+            const playlist = await api.delete(`/users/${this.props.userId}/playlists/${playlistId}`)
+            console.log(playlist)
+            this.setState({playlists: this.state.playlist.filter((item) => item.id !== playlistId)})
+        } catch (err) {
+            console.log(err.response)
+        }
     }
+
+    async componentDidMount() {
+        const playlistsInfo = await api.get(`/users/${this.props.userId}/playlists/`)
+        const newPlaylists = []
+        for (const playlist of playlistsInfo.data) {
+            newPlaylists.push({
+                name: playlist.name,
+                icon: "",
+                img: playlist.image,
+                playlistId: playlist._id,
+                callback: () => {this.props.history.push(`/game/${playlist._id}`)},
+            })
+        }
+        this.setState({playlists: this.state.playlists.concat(newPlaylists)})
+    }
+
+    async handlePlaylistAdd(url) {
+        if (url.match(/(?<!=)[A-Za-z0-8]{22}/g)) {
+            try {
+                const playlist = await api.post(`/users/${this.props.userId}/playlists`, {
+                    spotifyUrl: url
+                })
+                console.log(playlist)
+                this.setState({addPopup: false})
+            } catch (err) {
+                console.log(err.response)
+                return err.response.data
+            }
+        } 
+        return "URL is invalid"
+    } 
 
     render() {
         const playlistsObjects = []
@@ -60,8 +93,8 @@ export default class PlaylistManager extends React.Component {
                     <AddPopup 
                     message="To add an playlist, please copy the spotify URL and make sure the playlist is public"
                     buttonValue="Add"
-                    fail={()=>{this.setState({addPopup: false})}}
-                    success={(url)=>{console.log(url);this.setState({addPopup: false})}}
+                    onExit={()=>{this.setState({addPopup: false})}}
+                    onSubmit={(url) => {return this.handlePlaylistAdd(url)}}
                     withForm
                     />
                 }
@@ -70,6 +103,7 @@ export default class PlaylistManager extends React.Component {
     }
 }
 
-PlaylistManager.prototype.propTypes = {
-    history: PropTypes.any
+PlaylistManager.propTypes = {
+    history: PropTypes.any,
+    userId: PropTypes.string
 }

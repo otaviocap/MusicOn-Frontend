@@ -7,12 +7,13 @@ import PropTypes from 'prop-types'
 import '../css/Base.css'
     
 export default function PlaylistChooser({history}) {
+    const userId = history.location.pathname.slice("/user/".length);
     return (
         <div className="container">
             <Link to="/" className="link">
                 <img src={Logo} alt="MusicOn" id="logo"/>
             </Link>
-            <PlaylistManager history={history}/>
+            <PlaylistManager history={history} userId={userId}/>
         </div>
     )
 }

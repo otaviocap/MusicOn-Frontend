@@ -1,20 +1,42 @@
 import React, { useState } from 'react';
 import Logo from '../../assets/svg/Logo.svg';
 import {Link} from 'react-router-dom';
+import PropTypes from 'prop-types';
+import Crypto from 'crypto'
+import api from '../../services/Api';
 
 import '../css/Base.css'
 
-export default function RegisterPage() {
+export default function RegisterPage({history}) {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
 
     
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault()
-        console.log(username, password, email)
 
+        const hashedPassword = Crypto.createHash('sha256').update(password).digest("hex")
+
+        if (email.match(/\S+@\S+\.\S+/g)) {
+            try {
+                const createdUser = await api.post("/users/", {
+                    username,
+                    email,
+                    "password": hashedPassword
+                })
+                console.log(createdUser)
+        
+                history.push(`/user/${createdUser.data._id}`)
+                return
+            } catch (err) {
+                console.log(err.response)
+                document.getElementById("error").innerHTML = err.response.data.message
+                return
+            }
+        }
+        document.getElementById("error").innerHTML = "Invalid Email"
     }
 
 
@@ -34,10 +56,15 @@ export default function RegisterPage() {
                     <input type="password" placeholder="Password" autoComplete="password" aria-label="password"
                     onChange={event => setPassword(event.target.value)}
                     />
+                    <span className="error" id="error"></span>
                     <input type="submit" value="Register" />
                 </form>
             </div>
         </div>
     );
 
+}
+
+RegisterPage.prototype.propTypes = {
+    history: PropTypes.any
 }
