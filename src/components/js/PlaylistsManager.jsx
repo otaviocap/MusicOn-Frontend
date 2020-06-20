@@ -2,6 +2,7 @@ import React from 'react';
 import Playlist from './PlaylistObject'
 import AddBackground from '../../assets/jpg/add-background.jpg'
 import AddPopup from './AddPopup'
+import ConfigGamePopup from './ConfigGamePopup'
 import PropTypes from 'prop-types'
 import api from '../../services/Api'
 
@@ -15,26 +16,19 @@ export default class PlaylistManager extends React.Component {
 
         this.state = {
             addPopup: false,
+            configPopup: false,
+            selectedPlaylistId: "",
             playlists: [
                 {
                     name: "Add",
                     icon: "+",
                     img: `${AddBackground}`,
-                    playlistId: "0",
+                    spotifyId: "0",
+                    dbId: "0",
                     callback: () => {this.setState({addPopup: true})}
                 },
                 
             ]
-        }
-    }
-
-    async handlePlaylistRemove(playlistId) {
-        try {
-            const playlist = await api.delete(`/users/${this.props.userId}/playlists/${playlistId}`)
-            console.log(playlist)
-            this.setState({playlists: this.state.playlist.filter((item) => item.id !== playlistId)})
-        } catch (err) {
-            console.log(err.response)
         }
     }
 
@@ -46,11 +40,30 @@ export default class PlaylistManager extends React.Component {
                 name: playlist.name,
                 icon: "",
                 img: playlist.image,
-                playlistId: playlist._id,
-                callback: () => {this.props.history.push(`/game/${playlist._id}`)},
+                spotifyId: playlist.spotifyId,
+                dbId: playlist._id,
+                callback: () => {this.setState({configPopup: true, selectedPlaylistId: playlist.spotifyId})},
+                //this.props.history.push(`/game/${playlist._id}`)
             })
         }
         this.setState({playlists: this.state.playlists.concat(newPlaylists)})
+    }
+
+    async handleStartGame(playlist) {
+
+    }
+
+    async handlePlaylistRemove(playlist) {
+        try {
+            await api.delete(`/users/${this.props.userId}/playlists/${playlist.spotifyId}`)
+            this.setState({configPopup: false, selectedPlaylistId: "", playlists: this.state.playlists.filter((item) => item.dbId !== playlist.dbId)})
+        } catch (err) {
+            if (err.response) {
+                console.log(err.response)
+            } else {
+                console.log(err)
+            }
+        }
     }
 
     async handlePlaylistAdd(url) {
@@ -60,7 +73,15 @@ export default class PlaylistManager extends React.Component {
                     spotifyUrl: url
                 })
                 console.log(playlist)
-                this.setState({addPopup: false})
+                this.setState({addPopup: false, playlists: this.state.playlists.concat([{
+                    name: playlist.data.playlistInfo.name,
+                    icon: "",
+                    img: playlist.data.playlistInfo.image,
+                    playlistId: playlist.data.playlistInfo.spotifyId,
+                    dbId: playlist.data.playlistInfo._id,
+                    callback: () => {this.setState({configPopup: true, selectedPlaylistId: playlist.data.playlistInfo.spotifyId})},
+                }])})
+                return null
             } catch (err) {
                 console.log(err.response)
                 return err.response.data
@@ -96,6 +117,13 @@ export default class PlaylistManager extends React.Component {
                     onExit={()=>{this.setState({addPopup: false})}}
                     onSubmit={(url) => {return this.handlePlaylistAdd(url)}}
                     withForm
+                    />
+                }
+                {!this.state.configPopup ? null : <ConfigGamePopup 
+                    onExit={()=>{this.setState({configPopup: false, selectedPlaylistId: ""})}}
+                    onPlay={() => {}}
+                    onDelete={() => this.handlePlaylistRemove(this.state.playlists.find((item) => item.spotifyId === this.state.selectedPlaylistId))}
+                    playlist={this.state.playlists.find((item) => item.spotifyId === this.state.selectedPlaylistId)}
                     />
                 }
             </div>

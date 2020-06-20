@@ -1,0 +1,63 @@
+.front {
+    z-index: 6;
+}
+
+.middle {
+    z-index: 5;
+}
+
+.back {
+    z-index: 4;
+}
+
+.moveUp {
+    position: relative;
+    bottom: 8vh;
+}
+
+.resize {
+    flex: 1 1;
+}
+
+.configs-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-self: center;
+    align-content: center;
+    text-align: center;
+    height: 40vh;
+    width: 30vw;
+    background-color: rgba(150,150,150,.5);
+    margin: 0vh 1vw 1vh 1vw;
+    border-radius: 30px;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-self: center;
+    align-content: center;
+    justify-content: space-evenly;
+    margin: 2% 2% 4% 2%;
+}
+
+.buttons-container button {
+    width: 5vw;
+    min-width: 250px;
+    height: 4vh;
+    min-height: 40px;
+    border-color: transparent;
+    border-radius: 30px;
+    background-color: var(--c-green);
+    font-size: x-large;
+    font-family: Staatliches, Roboto, Arial, Helvetica, sans-serif;
+    color: var(--bg-color);
+    cursor: pointer;
+    margin: 0% 2% 0% 2%;
+}
+
+.buttons-container #delete {
+    background-color: #F64242;
+}

@@ -10,8 +10,8 @@ export default function AddPopup({onSubmit, onExit, withForm, message, buttonVal
     async function handleSubmit(event) {
         event.preventDefault()
         const returned = await onSubmit(url)
-        if (returned) {
-            document.getElementById("error").innerHTML = returned
+        if (document.getElementById("error")) {
+            document.getElementById("error").innerHTML = returned !== null ? returned : "" 
         }
         
     }

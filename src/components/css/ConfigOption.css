@@ -1,0 +1,45 @@
+.option-container {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-content: center;
+    justify-content: center;
+    height: 10vh;
+    margin: 5%;
+
+}
+
+.option-container .option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    text-align: left;
+    font-weight: bold;
+    font-size: 2.5rem;
+    color: white;
+}
+
+.option-container #value {
+    text-align: center;
+    margin: .5%;
+}
+
+.option-container button {
+    border: transparent;
+    background-color: transparent;
+    color: white;
+    font-size: x-large;
+    text-align: center;
+}
+
+.option-container .left {
+    position: relative;
+    right: 1;
+    width: 75%;
+}
+
+.option-container .right {
+    position: relative;
+    min-width: 5%;
+}
