@@ -22,7 +22,7 @@ export default function ConfigGamePopup({onPlay, onExit, onDelete, playlist}) {
             </div>
             <div className="configs-container middle">
                 <ConfigOption text="Max Players" stateFunction={setMaxplayers} state={maxPlayers} min={2} max={12} increment={1}/>
-                <ConfigOption text="Max Points" stateFunction={setMaxPoints} state={maxPoints} min={30} max={150} increment={5}/>
+                <ConfigOption text="Max Score" stateFunction={setMaxPoints} state={maxPoints} min={30} max={150} increment={5}/>
             </div>
             <div className="buttons-container middle">
                 <button id="delete" onClick={onDelete}>Delete</button>

@@ -25,21 +25,3 @@
 .playlists .itemWrapper .item {
     cursor: pointer;
 }
-
-::-webkit-scrollbar {
-    width: 2vh;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(50,50,50);
-    opacity: .5;
-    border-radius: 30px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(150,150,150);
-}
