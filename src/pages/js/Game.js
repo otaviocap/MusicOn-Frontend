@@ -4,6 +4,7 @@ import {Link} from 'react-router-dom'
 import Logo from '../../assets/svg/Logo.svg'
 import Song from '../../components/js/SongObject'
 import Api from '../../services/Api'
+import io from 'socket.io-client'
 import "../css/Game.css"
 
 import Bronze from '../../assets/svg/trophies/Bronze.svg'
@@ -20,19 +21,34 @@ export default class Game extends React.Component {
         }
     }
 
+    async getUsername() {
+        const query = new URLSearchParams(this.props.location.search)
+        let username;
+        if (this.props.location.state.username) {
+            username = this.props.location.state.username;
+        } else {
+            if (query.get("username")) {
+                username = query.get("username")
+            } else {
+                console.log("username not found")
+            }
+        }
+        return username
+    }
+
+    async loadSocket() {
+        
+
+    }
+
     async UNSAFE_componentWillMount() {
-        const roomId = this.props.history.location.pathname.slice("/game/".length)
+        const roomId = this.props.match.params.id
         try {
-            const roomExists = await Api.get(`/rooms/${roomId}`, (req, res, next) => {
-                try {
-                    console.log("Room not found")
-                } catch (err) {
-                    console.log()
-                }
-            })
+            const roomExists = await Api.get(`/rooms/${roomId}`)
             console.log(roomExists)
             if (roomExists.status !== 404) {
-                console.log("a")
+                console.log("Room exists")
+                this.loadSocket()
             }
         } catch(err) {
             if (err.response) {
@@ -124,5 +140,7 @@ export default class Game extends React.Component {
 }
 
 Game.propTypes = {
-    history: PropTypes.any
+    history: PropTypes.any,
+    match: PropTypes.any,
+    location: PropTypes.any
 }

@@ -49,8 +49,22 @@ export default class PlaylistManager extends React.Component {
         this.setState({playlists: this.state.playlists.concat(newPlaylists)})
     }
 
-    async handleStartGame(playlist) {
-
+    async handleStartGame(maxPlayers, maxScore, playlist) {
+        try {
+            console.log(playlist)
+            const room = await api.post("/rooms/", {
+                "playlistId": playlist.dbId,
+                maxPlayers,
+                maxScore
+            })
+            console.log(room)
+        } catch (err) {
+            if (err.response) {
+                console.log(err.response)
+            } else {
+                console.log(err)
+            }
+        }
     }
 
     async handlePlaylistRemove(playlist) {
@@ -121,7 +135,7 @@ export default class PlaylistManager extends React.Component {
                 }
                 {!this.state.configPopup ? null : <ConfigGamePopup 
                     onExit={()=>{this.setState({configPopup: false, selectedPlaylistId: ""})}}
-                    onPlay={() => {}}
+                    onPlay={this.handleStartGame}
                     onDelete={() => this.handlePlaylistRemove(this.state.playlists.find((item) => item.spotifyId === this.state.selectedPlaylistId))}
                     playlist={this.state.playlists.find((item) => item.spotifyId === this.state.selectedPlaylistId)}
                     />

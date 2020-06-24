@@ -9,7 +9,7 @@ import '../css/ConfigGame.css'
 export default function ConfigGamePopup({onPlay, onExit, onDelete, playlist}) {
 
     const [maxPlayers, setMaxplayers] = useState(2)
-    const [maxPoints, setMaxPoints] = useState(30)
+    const [maxScore, setMaxScore] = useState(30)
 
     return (
         <div className="addPopup-container back">
@@ -22,11 +22,11 @@ export default function ConfigGamePopup({onPlay, onExit, onDelete, playlist}) {
             </div>
             <div className="configs-container middle">
                 <ConfigOption text="Max Players" stateFunction={setMaxplayers} state={maxPlayers} min={2} max={12} increment={1}/>
-                <ConfigOption text="Max Score" stateFunction={setMaxPoints} state={maxPoints} min={30} max={150} increment={5}/>
+                <ConfigOption text="Max Score" stateFunction={setMaxScore} state={maxScore} min={30} max={150} increment={5}/>
             </div>
             <div className="buttons-container middle">
                 <button id="delete" onClick={onDelete}>Delete</button>
-                <button onClick={onPlay}>Play</button>
+                <button onClick={() => onPlay(maxPlayers, maxScore, playlist)}>Play</button>
             </div>
         </div>
     )

@@ -11,7 +11,6 @@ export default function ConfigOption({text, stateFunction, state, min, max, incr
             <button className="right" onClick={() => state - increment >= min ? stateFunction(state - increment) : null}>-</button>
             <span className="option right" id="value">{state}</span>
             <button className="right" onClick={() => state + increment <= max ? stateFunction(state + increment) : null}>+</button>
-
         </div>
     );
 }
