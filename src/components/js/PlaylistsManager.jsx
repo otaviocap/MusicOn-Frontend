@@ -57,7 +57,15 @@ export default class PlaylistManager extends React.Component {
                 maxPlayers,
                 maxScore
             })
-            console.log(room)
+            const user = await api.get(`/users/${this.props.userId}`)
+            const location = {
+                pathname: `/game/${room.data.roomId}/`,
+                state: {
+                    username: user.data.username
+                }
+            }
+            console.log(room, location)
+            this.props.history.push(location)
         } catch (err) {
             if (err.response) {
                 console.log(err.response)
@@ -135,7 +143,7 @@ export default class PlaylistManager extends React.Component {
                 }
                 {!this.state.configPopup ? null : <ConfigGamePopup 
                     onExit={()=>{this.setState({configPopup: false, selectedPlaylistId: ""})}}
-                    onPlay={this.handleStartGame}
+                    onPlay={(maxPlayers, maxScore, playlist) => this.handleStartGame(maxPlayers, maxScore, playlist)}
                     onDelete={() => this.handlePlaylistRemove(this.state.playlists.find((item) => item.spotifyId === this.state.selectedPlaylistId))}
                     playlist={this.state.playlists.find((item) => item.spotifyId === this.state.selectedPlaylistId)}
                     />

@@ -11,43 +11,48 @@ import Bronze from '../../assets/svg/trophies/Bronze.svg'
 import Silver from '../../assets/svg/trophies/Silver.svg'
 import Gold from '../../assets/svg/trophies/Gold.svg'
 import AddPopup from '../../components/js/AddPopup'
+import api from '../../services/Api'
 
 export default class Game extends React.Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            popUp: true
+            popUp: true,
+            width: "100%"
         }
     }
 
     async getUsername() {
-        const query = new URLSearchParams(this.props.location.search)
-        let username;
         if (this.props.location.state.username) {
-            username = this.props.location.state.username;
-        } else {
-            if (query.get("username")) {
-                username = query.get("username")
-            } else {
-                console.log("username not found")
-            }
+            return this.props.location.state.username;
         }
-        return username
     }
 
     async loadSocket() {
-        
-
+        const username = await this.getUsername()
+        const socket = io("http://localhost:3333/", {
+            query: {
+                room: this.props.match.params.id,
+                username
+            }
+        })
+        const player = await api.post(`/rooms/${this.props.match.params.id}/players`, {
+            username
+        })
+        socket.on("changeSong", ({ newSongUrl }) => {
+            document.getElementById("audioSource").src = newSongUrl
+        })
+        socket.on("play", () => {
+            document.getElementById("audio").play()
+        })
     }
 
     async UNSAFE_componentWillMount() {
         const roomId = this.props.match.params.id
         try {
             const roomExists = await Api.get(`/rooms/${roomId}`)
-            console.log(roomExists)
             if (roomExists.status !== 404) {
-                console.log("Room exists")
                 this.loadSocket()
             }
         } catch(err) {
@@ -60,9 +65,23 @@ export default class Game extends React.Component {
         }
     }
 
+    handleAudio(event) {
+        console.log("aaa")
+        console.log(event)
+    }
+
+    handleTimeUpdate() {
+        console.log("aaaaaaaaa")
+        this.setState({width: ((30 - document.getElementById("audio").currentTime) / 30)*100 + "%"})
+
+    }
+
     render() {
         return (
             <div className="container">
+                <audio hidden autoPlay onDurationChange={this.handleAudio} onTimeUpdate={() => {this.handleTimeUpdate()}} id="audio">
+                    <source id="audioSource" src={"https://p.scdn.co/mp3-preview/6f4f720769b162516cde512671b0c339cc37932c?cid=774b29d4f13844c495f206cafdad9c86"} />
+                </audio>
                 <Link to="/" className="link">
                     <img src={Logo} alt="MusicOn" id="logo"/>
                 </Link>
@@ -94,7 +113,7 @@ export default class Game extends React.Component {
                     <div className="column">
                         <div className="guessInput">
                             <input type="text" placeholder="Guess the song and the artist"/>
-                            <div className="timeBar"/>
+                            <div className="timeBar" id="timeBar"style={{width: this.state.width}}/>
                         </div>
                         <div className="songHistory">
                             <Song 

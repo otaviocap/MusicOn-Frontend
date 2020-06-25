@@ -17,7 +17,6 @@ export default function LoginPage({ history }) {
 
         const hashedPassword = Crypto.createHash('sha256').update(password).digest("hex")
 
-        console.log(email, password)
         if (email.match(/\S+@\S+\.\S+/g)) {
             try {
                 const user = await Api.post("/auth/", {

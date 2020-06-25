@@ -7,14 +7,19 @@ import logo from '../../assets/svg/Logo.svg'
 import '../css/Base.css'
 
 
-export default function EnterRoomPage({history}) {
+export default function EnterRoomPage({history, location}) {
 
     const [username, setUsername] = useState("");
 
     function handleSubmit(event) {
         event.preventDefault()
-        console.log(username)
-        history.push(history.location.pathname.slice(0, -"/enter".length))
+        const nextLocation = {
+            pathname: location.pathname.slice(0, -"/enter".length),
+            state: {
+                username
+            }
+        }
+        history.push(nextLocation)
     }
 
     return (
@@ -36,5 +41,6 @@ export default function EnterRoomPage({history}) {
 }
 
 EnterRoomPage.prototype.propTypes = {
-    history: PropTypes.any
+    history: PropTypes.any,
+    location: PropTypes.any
 }
