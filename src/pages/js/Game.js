@@ -17,35 +17,93 @@ export default class Game extends React.Component {
 
     constructor(props) {
         super(props)
+        this.lastMessageSize = 0
+        this.socket = undefined;
         this.state = {
-            popUp: true,
-            width: "100%"
+            popUp: false,
+            width: "100%",
+            players: [],
+            messages: [
+                {
+                    message: "dsadsds",
+                    sender: "otavio"
+                }
+            ],
+            songHistory: [
+                {
+                    img: "https://lojasaraiva.vteximg.com.br/arquivos/ids/2160871/1001074167.jpg?v=637007703586970000",
+                    songTitle: "Radioactive",
+                    album: "Nightvisions",
+                    artist: "Imagine Dragons",
+                    songLink: "https://www.youtube.com/watch?v=ktvTqknDobU",
+                }
+            ]
         }
     }
 
-    async getUsername() {
-        if (this.props.location.state.username) {
-            return this.props.location.state.username;
+    getUsername() {
+        try {
+            if (this.props.location.state.username) {
+                return this.props.location.state.username;
+            }
+        } catch (err) {
+            const pathname = this.props.location.pathname
+            if (pathname.endsWith("/")) {
+                this.props.history.push(pathname + "enter")
+            } else {
+                this.props.history.push(pathname + "/enter")
+            }   
         }
     }
 
     async loadSocket() {
         const username = await this.getUsername()
-        const socket = io("http://localhost:3333/", {
-            query: {
-                room: this.props.match.params.id,
+        if (username) {
+            const socket = io("http://localhost:3333/", {
+                query: {
+                    roomId: this.props.match.params.id,
+                    username
+                }
+            })
+            this.socket = socket
+            const player = await api.post(`/rooms/${this.props.match.params.id}/players`, {
                 username
-            }
-        })
-        const player = await api.post(`/rooms/${this.props.match.params.id}/players`, {
-            username
-        })
-        socket.on("changeSong", ({ newSongUrl }) => {
-            document.getElementById("audioSource").src = newSongUrl
-        })
-        socket.on("play", () => {
-            document.getElementById("audio").play()
-        })
+            })
+            socket.on("changeSong", ({ newSongUrl }) => {
+                document.getElementById("audioSource").src = newSongUrl
+            })
+            socket.on("play", () => {
+                document.getElementById("audio").play()
+            })
+            socket.on("addPlayer", (command) => {
+                this.setState({
+                    players: this.state.players.concat([{
+                    "username": command.username,
+                    "state": "none",
+                    "score": 0
+                }])})
+            })
+            socket.on("removePlayer", (commmand) => {
+                delete this.state.players[this.state.players.findIndex((item) => item.username === commmand.username)]
+                this.setState()
+            })
+            socket.on("newMessage", (command) => {
+                this.setState({
+                    messages: this.state.messages.concat({
+                        message: command.message,
+                        sender: command.sender
+                    })
+                })
+            })
+        }
+    }
+
+
+    async componentDidUpdate() {
+        if (this.lastMessageSize !== this.state.messages.length) {
+            this.lastMessageSize = this.state.messages.length
+            this.scrollDownTextArea()
+        }
     }
 
     async UNSAFE_componentWillMount() {
@@ -66,14 +124,101 @@ export default class Game extends React.Component {
     }
 
     handleAudio(event) {
-        console.log("aaa")
-        console.log(event)
     }
 
     handleTimeUpdate() {
-        console.log("aaaaaaaaa")
         this.setState({width: ((30 - document.getElementById("audio").currentTime) / 30)*100 + "%"})
 
+    }
+
+    handleSendMessages(event) {
+        event.preventDefault()
+        const text = document.getElementById("text").value
+        document.getElementById("text").value = ""
+        if (this.socket) {
+            this.socket.emit("newMessage", {
+                message: text,
+                sender: this.getUsername(),
+                roomId: this.props.match.params.id
+            })
+        }
+
+    }
+
+    scrollDownTextArea() {
+        const textArea = document.getElementById("textArea")
+        textArea.scrollTop = textArea.scrollHeight
+    }
+
+
+    renderPlayers() {
+        const playersToRender = []
+        const playersSorted = this.state.players.sort((a,b) => {return a.score - b.score})
+        playersSorted.reverse()
+        for (const player of playersSorted) {
+            let icon;
+            let color;
+            switch(player.state) {
+                case "first":
+                    color = "Gold"
+                    icon = Gold
+                    break
+                case "second":
+                    color = "Gray"
+                    icon = Silver
+                    break
+                case "third":
+                    color = "DarkOrange"
+                    icon = Bronze
+                    break
+                case "both":
+                    color = "Olive"
+                    break
+                case "one":
+                    color = "Salmon"
+                    break
+                default:
+                    color = ""
+                    icon = ""
+                    break
+            }
+            playersToRender.push(
+                <div className="playerItem" key={this.state.players.indexOf(player)}>
+                    <img src={icon ? icon : ""} className="icon" alt=""/>
+                    <p className="name" style={{"color": color ? color : ""}}>{player.username}</p>
+                    <p className="score" style={{"color": color ? color : ""}}>{player.score}</p>
+                </div>
+            )
+        }
+        return playersToRender
+    }
+
+    renderMessages() {
+        const messagesToRender = []
+        for (const message of this.state.messages) {
+            messagesToRender.push(
+                message.sender ? 
+                <div key={this.state.messages.indexOf(message)}><p><span className="prefix">{message.sender}: </span>{message.message}</p></div> :
+                <div key={this.state.messages.indexOf(message)}><p>{message.message}</p></div>
+            )
+        }
+        return messagesToRender
+    }
+
+    renderSongHistory() {
+        const songsToRender = []
+        for (const song of this.state.songHistory) {
+            songsToRender.push(
+                <Song key={this.state.songHistory.indexOf(song)}
+                    img={song.img}
+                    songTitle={song.songTitle}
+                    album={song.album}
+                    artist={song.artist}
+                    songLink={song.songLink}
+                />
+            )
+        }
+        return songsToRender
     }
 
     render() {
@@ -88,26 +233,7 @@ export default class Game extends React.Component {
                 <div className="gameContainer">
                     <div className="column">
                         <div className="playerlist">
-                            <div className="playerItem">
-                                <img src={Bronze} className="icon" alt=""/>
-                                <p className="name">Nome</p>
-                                <p className="score">5</p>
-                            </div>
-                            <div className="playerItem">
-                                <img src={Silver} className="icon" alt=""/>
-                                <p className="name">Nome</p>
-                                <p className="score">5</p>
-                            </div>
-                            <div className="playerItem">
-                                <img src={Gold} className="icon" alt=""/>
-                                <p className="name">Nome</p>
-                                <p className="score">5</p>
-                            </div>
-                            <div className="playerItem">
-                                <img className="icon" alt=""/>
-                                <p className="name">Nome</p>
-                                <p className="score">5</p>
-                            </div>
+                            {this.renderPlayers()}
                         </div>
                     </div>
                     <div className="column">
@@ -116,33 +242,16 @@ export default class Game extends React.Component {
                             <div className="timeBar" id="timeBar"style={{width: this.state.width}}/>
                         </div>
                         <div className="songHistory">
-                            <Song 
-                                img="https://lojasaraiva.vteximg.com.br/arquivos/ids/2160871/1001074167.jpg?v=637007703586970000"
-                                songTitle="Radioactive"
-                                album="Nightvisions"
-                                artist="Imagine Dragons"
-                                songLink="https://www.youtube.com/watch?v=ktvTqknDobU"
-                            />
+                            {this.renderSongHistory()}
                         </div>
                         <div className="chatArea">
-                            <div className="textArea">
-                                <p><span className="prefix">Otavio: </span>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
-                                <p>dasdasdasda</p>
+                            <div className="textArea" id="textArea">
+                                {this.renderMessages()}
                             </div>
-                            <div className="inputArea">
-                                <input type="text" className="chatInput" />
-                                <input type="submit" className="chatSubmit" value="Send"/>
-                            </div>
+                            <form className="inputArea">
+                                <input type="text" className="chatInput" id="text"/>
+                                <input type="submit" className="chatSubmit" value="Send" onClick={(event) => this.handleSendMessages(event)}/>
+                            </form>
                         </div>
                     </div>
                 </div>
