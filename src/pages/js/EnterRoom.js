@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
+import api from '../../services/Api';
 import PropTypes from 'prop-types';
 
 import logo from '../../assets/svg/Logo.svg'
@@ -7,11 +8,11 @@ import logo from '../../assets/svg/Logo.svg'
 import '../css/Base.css'
 
 
-export default function EnterRoomPage({history, location}) {
+export default function EnterRoomPage({history, location, match}) {
 
     const [username, setUsername] = useState("");
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault()
         const nextLocation = {
             pathname: location.pathname.slice(0, -"/enter".length),
@@ -19,7 +20,17 @@ export default function EnterRoomPage({history, location}) {
                 username
             }
         }
+        const checkPlayers = await api.get(`/rooms/${match.params.roomId}/players/`)
         history.push(nextLocation)
+    }
+
+    function CheckError() {
+        if (location.state) { 
+            if (location.state.error) {
+                return <span className="error" id="error"> location.state.error </span>
+            }
+        }
+        return null
     }
 
     return (
@@ -33,6 +44,7 @@ export default function EnterRoomPage({history, location}) {
                     <input className="add-margin" type="text" placeholder="Username" autoComplete="username" aria-label="username"
                     onChange={event => setUsername(event.target.value)}
                     /> 
+                    <CheckError/>
                     <input type="submit" value="Enter" />
                 </form>
             </div>
@@ -42,5 +54,6 @@ export default function EnterRoomPage({history, location}) {
 
 EnterRoomPage.prototype.propTypes = {
     history: PropTypes.any,
-    location: PropTypes.any
+    location: PropTypes.any,
+    match: PropTypes.any
 }

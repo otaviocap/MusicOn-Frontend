@@ -59,6 +59,20 @@ export default class Game extends React.Component {
     async loadSocket() {
         const username = await this.getUsername()
         if (username) {
+            let roomResponse;
+            try {
+                roomResponse = await api.post(`/rooms/${this.props.match.params.id}/players`, {
+                    username
+                })
+            } catch(err) {
+                const nextLocation = {
+                    pathname: this.props.location.pathname + "/enter",
+                    state: {
+                        error: "User already in the room"
+                    }
+                }
+                return this.props.history.push(nextLocation)
+            }
             const socket = io("http://localhost:3333/", {
                 query: {
                     roomId: this.props.match.params.id,
@@ -66,15 +80,19 @@ export default class Game extends React.Component {
                 }
             })
             this.socket = socket
-            const player = await api.post(`/rooms/${this.props.match.params.id}/players`, {
-                username
+
+            this.setState({
+                "players": this.state.players.concat(roomResponse.data.players)
             })
+
             socket.on("changeSong", ({ newSongUrl }) => {
                 document.getElementById("audioSource").src = newSongUrl
             })
+
             socket.on("play", () => {
                 document.getElementById("audio").play()
             })
+
             socket.on("addPlayer", (command) => {
                 this.setState({
                     players: this.state.players.concat([{
@@ -83,10 +101,12 @@ export default class Game extends React.Component {
                     "score": 0
                 }])})
             })
+
             socket.on("removePlayer", (commmand) => {
                 delete this.state.players[this.state.players.findIndex((item) => item.username === commmand.username)]
                 this.setState()
             })
+
             socket.on("newMessage", (command) => {
                 this.setState({
                     messages: this.state.messages.concat({
@@ -153,42 +173,45 @@ export default class Game extends React.Component {
 
     renderPlayers() {
         const playersToRender = []
-        const playersSorted = this.state.players.sort((a,b) => {return a.score - b.score})
+        const playersSorted = this.state.players.sort((a,b) => {return a.score - b.score}).sort((a,b) => {return a.username > b.username ? 1 : a.username < b.username ? -1 : 0})
         playersSorted.reverse()
+        console.log(playersSorted)
         for (const player of playersSorted) {
-            let icon;
-            let color;
-            switch(player.state) {
-                case "first":
-                    color = "Gold"
-                    icon = Gold
-                    break
-                case "second":
-                    color = "Gray"
-                    icon = Silver
-                    break
-                case "third":
-                    color = "DarkOrange"
-                    icon = Bronze
-                    break
-                case "both":
-                    color = "Olive"
-                    break
-                case "one":
-                    color = "Salmon"
-                    break
-                default:
-                    color = ""
-                    icon = ""
-                    break
+            if (player) {
+                let icon;
+                let color;
+                switch(player.state) {
+                    case "first":
+                        color = "Gold"
+                        icon = Gold
+                        break
+                    case "second":
+                        color = "Gray"
+                        icon = Silver
+                        break
+                    case "third":
+                        color = "DarkOrange"
+                        icon = Bronze
+                        break
+                    case "both":
+                        color = "Olive"
+                        break
+                    case "one":
+                        color = "Salmon"
+                        break
+                    default:
+                        color = ""
+                        icon = ""
+                        break
+                }
+                playersToRender.push(
+                    <div className="playerItem" key={this.state.players.indexOf(player)}>
+                        <img src={icon ? icon : ""} className="icon" alt=""/>
+                        <p className="name" style={{"color": color ? color : ""}}>{player.username}</p>
+                        <p className="score" style={{"color": color ? color : ""}}>{player.score}</p>
+                    </div>
+                )
             }
-            playersToRender.push(
-                <div className="playerItem" key={this.state.players.indexOf(player)}>
-                    <img src={icon ? icon : ""} className="icon" alt=""/>
-                    <p className="name" style={{"color": color ? color : ""}}>{player.username}</p>
-                    <p className="score" style={{"color": color ? color : ""}}>{player.score}</p>
-                </div>
-            )
         }
         return playersToRender
     }
