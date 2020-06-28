@@ -25,8 +25,7 @@ export default class Game extends React.Component {
             players: [],
             messages: [
                 {
-                    message: "dsadsds",
-                    sender: "otavio"
+                    message: "For text commands use /help in the chat",
                 }
             ],
             songHistory: [
@@ -95,6 +94,9 @@ export default class Game extends React.Component {
 
             socket.on("addPlayer", (command) => {
                 this.setState({
+                    messages: this.state.messages.concat([{
+                        message: `The player ${command.username} has connected the room`
+                    }]),
                     players: this.state.players.concat([{
                     "username": command.username,
                     "state": "none",
@@ -102,9 +104,15 @@ export default class Game extends React.Component {
                 }])})
             })
 
-            socket.on("removePlayer", (commmand) => {
-                delete this.state.players[this.state.players.findIndex((item) => item.username === commmand.username)]
-                this.setState()
+            socket.on("removePlayer", (command) => {
+                if (command.username) {
+                    delete this.state.players[this.state.players.findIndex((item) => {if (item) { return item.username === command.username }})]
+                    this.setState({
+                        messages: this.state.messages.concat([{
+                            message: `The player ${command.username} has left the room`
+                        }]),
+                    })
+                }
             })
 
             socket.on("newMessage", (command) => {
@@ -143,6 +151,33 @@ export default class Game extends React.Component {
         }
     }
 
+    handleTextCommand(text) {
+        const command = text.match(/\S+/g)
+        switch(command[0]) {
+            case "/volume":
+                if (parseInt(command[1])){
+                    document.getElementById("audio").volume = parseInt(command[1])/100
+                    this.setState({messages: this.state.messages.concat([{message: `Volume is set to ${command[1]}%`}])})
+                } else {
+                    this.setState({messages: this.state.messages.concat([{message: `You didn't give an value to volume or the value send is not a number`}])})
+                }
+                break;
+            case "/help":
+                this.setState({messages: this.state.messages.concat([
+                    {message: ``},
+                    {message: `Welcome to /help`},
+                    {message: `/volume {value} | To change the volume of the song`},
+                    {message: ``},
+                    {message: ``},
+                ])})
+                break;
+            default:
+                this.setState({messages: this.state.messages.concat([
+                    {message: `The command ${command[0]} doesn't exist  , please use /help to see all the commands`}
+                ])})
+        }
+    }
+
     handleAudio(event) {
     }
 
@@ -155,6 +190,10 @@ export default class Game extends React.Component {
         event.preventDefault()
         const text = document.getElementById("text").value
         document.getElementById("text").value = ""
+        if (text.startsWith("/")) {
+            this.handleTextCommand(text)
+            return;
+        }
         if (this.socket) {
             this.socket.emit("newMessage", {
                 message: text,
@@ -175,7 +214,6 @@ export default class Game extends React.Component {
         const playersToRender = []
         const playersSorted = this.state.players.sort((a,b) => {return a.score - b.score}).sort((a,b) => {return a.username > b.username ? 1 : a.username < b.username ? -1 : 0})
         playersSorted.reverse()
-        console.log(playersSorted)
         for (const player of playersSorted) {
             if (player) {
                 let icon;

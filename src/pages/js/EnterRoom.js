@@ -20,14 +20,13 @@ export default function EnterRoomPage({history, location, match}) {
                 username
             }
         }
-        const checkPlayers = await api.get(`/rooms/${match.params.roomId}/players/`)
         history.push(nextLocation)
     }
 
     function CheckError() {
         if (location.state) { 
             if (location.state.error) {
-                return <span className="error" id="error"> location.state.error </span>
+                return <span className="error" id="error"> {location.state.error} </span>
             }
         }
         return null
