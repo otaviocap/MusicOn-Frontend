@@ -97,6 +97,36 @@
     text-align: center;
 }
 
+.gameContainer .guessInput .guessResponse {
+    position: relative;
+    z-index: 10;
+    bottom: 4.5vh;
+    font-size: xx-large;
+    font-weight: bold;
+    opacity: 1;
+    transition: all 1s;
+    animation: fadeOut 1s ease-in 1 normal forwards;
+    animation-play-state: paused;
+}
+
+.gameContainer .guessInput .correct{
+    color: var(--c-green);
+}
+
+.gameContainer .guessInput .wrong {
+    color: indianred
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    } 
+    to {
+        opacity: 0;
+    }
+}
+
+
 .gameContainer .songHistory {
     overflow-x: hidden;
     overflow-y: scroll;

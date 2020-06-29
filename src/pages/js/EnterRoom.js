@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
-import api from '../../services/Api';
 import PropTypes from 'prop-types';
 
 import logo from '../../assets/svg/Logo.svg'
@@ -8,7 +7,7 @@ import logo from '../../assets/svg/Logo.svg'
 import '../css/Base.css'
 
 
-export default function EnterRoomPage({history, location, match}) {
+export default function EnterRoomPage({history, location}) {
 
     const [username, setUsername] = useState("");
 
