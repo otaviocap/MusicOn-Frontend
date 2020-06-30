@@ -41,8 +41,7 @@ export default class PlaylistManager extends React.Component {
                 icon: "",
                 img: playlist.image,
                 spotifyId: playlist.spotifyId,
-                dbId: playlist._id,
-                callback: () => {this.setState({configPopup: true, selectedPlaylistId: playlist.spotifyId})},
+                dbId: playlist._id
                 //this.props.history.push(`/game/${playlist._id}`)
             })
         }
@@ -76,6 +75,7 @@ export default class PlaylistManager extends React.Component {
     }
 
     async handlePlaylistRemove(playlist) {
+        console.log(playlist)
         try {
             await api.delete(`/users/${this.props.userId}/playlists/${playlist.spotifyId}`)
             this.setState({configPopup: false, selectedPlaylistId: "", playlists: this.state.playlists.filter((item) => item.dbId !== playlist.dbId)})
@@ -89,7 +89,7 @@ export default class PlaylistManager extends React.Component {
     }
 
     async handlePlaylistAdd(url) {
-        if (url.match(/(?<!=)[A-Za-z0-8]{22}/g)) {
+        if (url.match(/[A-Za-z0-8]{22}/g)) {
             try {
                 const playlist = await api.post(`/users/${this.props.userId}/playlists`, {
                     spotifyUrl: url
@@ -99,7 +99,7 @@ export default class PlaylistManager extends React.Component {
                     name: playlist.data.playlistInfo.name,
                     icon: "",
                     img: playlist.data.playlistInfo.image,
-                    playlistId: playlist.data.playlistInfo.spotifyId,
+                    spotifyId: playlist.data.playlistInfo.spotifyId,
                     dbId: playlist.data.playlistInfo._id,
                     callback: () => {this.setState({configPopup: true, selectedPlaylistId: playlist.data.playlistInfo.spotifyId})},
                 }])})
@@ -122,7 +122,7 @@ export default class PlaylistManager extends React.Component {
                             name={playlist.name}
                             icon={playlist.icon}
                             img={playlist.img}
-                            callback={playlist.callback} />
+                            callback={() => playlist.name === "Add" ? playlist.callback() : this.setState({configPopup: true, selectedPlaylistId: playlist.spotifyId})} />
                     </div>
                 </div>
             )

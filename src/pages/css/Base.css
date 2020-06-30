@@ -139,6 +139,7 @@
 
 .container #logo {
     position: absolute;
+    height: 15vh;
     top: 5%;
 }
 

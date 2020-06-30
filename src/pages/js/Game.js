@@ -24,7 +24,7 @@ export default class Game extends React.Component {
         this.gotTheSong = false
         this.state = {
             currentSong: {},
-            popUp: false,
+            popUp: true,
             width: "100%",
             players: [],
             messages: [
@@ -68,7 +68,7 @@ export default class Game extends React.Component {
                 }
                 return this.props.history.push(nextLocation)
             }
-            const socket = io("http://localhost:3333/", {
+            const socket = io("http://187.181.244.91:3333/", {
                 query: {
                     roomId: this.props.match.params.id,
                     username
@@ -80,14 +80,6 @@ export default class Game extends React.Component {
                 "players": this.state.players.concat(roomResponse.data.players)
             })
 
-            // socket.on("changeSong", ({ newSongUrl }) => {
-            //     document.getElementById("audioSource").src = newSongUrl
-            // })
-
-            // socket.on("play", () => {
-            //     document.getElementById("audio").play()
-            // })
-
             socket.on("startGame", (command) => {
                 if (this.state.currentSong) {
                     this.state.songHistory.unshift(this.state.currentSong)
@@ -97,9 +89,9 @@ export default class Game extends React.Component {
                 this.gotTheSong = false;
                 document.getElementById("guessInput").placeholder = "Guess the song and the artist"
                 document.getElementById("guessInput").disabled = false
+                this.state.players.forEach((player) => player.state = "none") 
                 this.setState({currentSong: {
                     songTitle: command.songName,
-                    formattedSongTitle: command.songName.slice(0, command.songName.indexOf("(feat")).trim().replace(/[?!.]+/g, ""),
                     img: command.img,
                     album: command.album,
                     artist: command.artist,
@@ -147,6 +139,28 @@ export default class Game extends React.Component {
                 player.state = command.state
                 this.setState({players: this.state.players});
             })
+
+            socket.on("winState", () => {
+                const playersSorted = this.state.players.sort((a,b) => {return a.username > b.username ? 1 : a.username < b.username ? -1 : 0}).sort((a,b) => {return a.score - b.score})
+                playersSorted.reverse()
+                this.state.players.forEach((player) => player.score = 0)
+                const winner = playersSorted.filter((player) => {if (player) {return player}})
+                const winMessages = [{
+                    message: "We have the WINNERSS"
+                },{
+                    message: `1st place: ${winner[0].username}`
+                },{
+                    message: `2nd place: ${winner[1].username}`
+                }, winner[2] ? {
+                    message: `3rd place: ${winner[2].username}`
+                } : {}, {
+                    message: `The next match is starting soon`
+                }]
+                this.setState({
+                    messages: this.state.messages.concat(winMessages),
+                    players: this.state.players
+                })
+            })
         }
     }
 
@@ -164,7 +178,6 @@ export default class Game extends React.Component {
         }
         if (this.needsToPlay) {
             this.needsToPlay = false
-            console.log("will play")
             document.getElementById("audio").play()
             document.getElementById("audio").muted = false
         }
@@ -176,11 +189,12 @@ export default class Game extends React.Component {
         const guessInput = document.getElementById("guessInput")
         guessResponse.addEventListener("animationend", () => {
             guessResponse.hidden = true
-            guessInput.value = guessInput.value.startsWith(" ") ? guessInput.value.slice(1) : ""
             guessResponse.style.webkitAnimationPlayState = "paused"
         })
         if (localStorage.getItem("volume")) {
             document.getElementById("audio").volume = localStorage.getItem("volume")
+        } else {
+            document.getElementById("audio").volume = ".05"
         }
     }
 
@@ -190,9 +204,9 @@ export default class Game extends React.Component {
             const roomExists = await Api.get(`/rooms/${roomId}`)
             if (roomExists.status !== 404) {
                 this.loadSocket()
-                // window.onbeforeunload = function(event) {
-                //     event.returnValue = "Reloading the page will make you lose all your points"
-                // }
+                window.onbeforeunload = function(event) {
+                    event.returnValue = "Reloading the page will make you lose all your points"
+                }
             }
         } catch(err) {
             if (err.response) {
@@ -236,53 +250,60 @@ export default class Game extends React.Component {
         event.preventDefault()
         const guessResponse = document.getElementById("guessResponse")
         const guessInput = document.getElementById("guessInput")
-        console.log(this.state.currentSong)
-
         //I know checking in the user side is not the most secure, but this reduces the server process by a lot
-        if (guessInput.value.toLowerCase() === this.state.currentSong.artist.toLowerCase() && !this.gotTheArtist) {
-            this.gotTheArtist = true
-            guessResponse.innerHTML = "Correct"
-            if (guessResponse.classList.contains("wrong")) {
-                guessResponse.classList.remove("wrong")
-            } 
-            if (!guessResponse.classList.contains("correct")) {
-                guessResponse.classList.add("correct")
-            } 
-            this.socket.emit("correctAnswer", {
-                correct: "artist"
-            })
-        } else if (guessInput.value.toLowerCase() === this.state.currentSong.formattedSongTitle.toLowerCase() && !this.gotTheSong) {
-            this.gotTheSong = true
-            guessResponse.innerHTML = "Correct"
-            if (guessResponse.classList.contains("wrong")) {
-                guessResponse.classList.remove("wrong")
-            } 
-            if (!guessResponse.classList.contains("correct")) {
-                guessResponse.classList.add("correct")
-            } 
-            this.socket.emit("correctAnswer")
-        } else {
-            guessResponse.innerHTML = "Wrong"
-            if (!guessResponse.classList.contains("wrong")) {
-                guessResponse.classList.add("wrong")
-            } 
-            if (guessResponse.classList.contains("correct")) {
-                guessResponse.classList.remove("correct")
-            } 
+        if ( Object.keys(this.state.currentSong).length !== 0 && this.state.currentSong.constructor === Object) {
+            const input = guessInput.value.toLowerCase().replace(/[?!.']+/g, "")
+            const formattedSongTitle = this.state.currentSong.songTitle.slice(0, this.state.currentSong.songTitle.indexOf("(") === -1 ? this.state.currentSong.songTitle.length : this.state.currentSong.songTitle.indexOf("(")).trim().replace(/[?!.']+/g, "")
+            if ( input === this.state.currentSong.artist.toLowerCase() && !this.gotTheArtist) {
+                this.gotTheArtist = true
+                guessResponse.innerHTML = "Correct"
+                if (guessResponse.classList.contains("wrong")) {
+                    guessResponse.classList.remove("wrong")
+                } 
+                if (!guessResponse.classList.contains("correct")) {
+                    guessResponse.classList.add("correct")
+                } 
+                this.socket.emit("correctAnswer", {
+                    correct: "artist"
+                })
+            } else if (input === formattedSongTitle.toLowerCase() && !this.gotTheSong) {
+                this.gotTheSong = true
+                guessResponse.innerHTML = "Correct"
+                if (guessResponse.classList.contains("wrong")) {
+                    guessResponse.classList.remove("wrong")
+                } 
+                if (!guessResponse.classList.contains("correct")) {
+                    guessResponse.classList.add("correct")
+                } 
+                this.socket.emit("correctAnswer")
+            } else {
+                guessResponse.innerHTML = "Wrong"
+                if (!guessResponse.classList.contains("wrong")) {
+                    guessResponse.classList.add("wrong")
+                } 
+                if (guessResponse.classList.contains("correct")) {
+                    guessResponse.classList.remove("correct")
+                } 
+            }
+            if (this.gotTheSong && this.gotTheArtist) {
+                guessInput.placeholder = "You got everything right. NICE"
+                guessInput.disabled = true
+            }
+            guessResponse.hidden = false
+            guessResponse.style.webkitAnimationPlayState = "running"
         }
-        if (this.gotTheSong && this.gotTheArtist) {
-            guessInput.placeholder = "You got everything right. NICE"
-            guessInput.disabled = true
-        }
-        guessResponse.hidden = false
-        guessResponse.style.webkitAnimationPlayState = "running"
-        guessInput.value = " "
-
+        guessInput.value = ""
     }
 
     handleTimeUpdate() {
         this.setState({width: ((30 - document.getElementById("audio").currentTime) / 30)*100 + "%"})
+    }
 
+    handlePause(seconds) {
+        this.setState({width: ((4.5 - seconds) / 4.5)*100 + "%"})
+        if (seconds !== 0) {
+            setTimeout(() => {this.handlePause(seconds-.25)}, 250)
+        }
     }
 
     handleSendMessages(event) {
@@ -388,8 +409,8 @@ export default class Game extends React.Component {
         return (
             <div className="container">
                 <audio
-                    onDurationChange={this.handleAudio} 
-                    onTimeUpdate={() => {this.handleTimeUpdate()}} 
+                    onTimeUpdate={() => this.handleTimeUpdate()} 
+                    onEnded={() => {this.handlePause(4.5)}}
                     id="audio" 
                     src={this.state.currentSong.previewAudio ? this.state.currentSong.previewAudio : ""} 
                 />
