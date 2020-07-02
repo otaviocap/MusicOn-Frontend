@@ -13,13 +13,15 @@ export default function EnterRoomPage({history, location}) {
 
     async function handleSubmit(event) {
         event.preventDefault()
-        const nextLocation = {
-            pathname: location.pathname.slice(0, -"/enter".length),
-            state: {
-                username
+        if (username !== "") {
+            const nextLocation = {
+                pathname: location.pathname.slice(0, -"/enter".length),
+                state: {
+                    username
+                }
             }
+            history.push(nextLocation)
         }
-        history.push(nextLocation)
     }
 
     function CheckError() {

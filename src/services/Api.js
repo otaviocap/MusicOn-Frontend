@@ -1,7 +1,8 @@
 import axios from "axios"
+import info from "../Info"
 
 const api = axios.create({
-    baseURL: 'http://187.181.244.91:3333/api/'
+    baseURL: `http://${info.serverIp}:${info.severPort}/api/`
 })
 
 export default api

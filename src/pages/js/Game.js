@@ -5,6 +5,7 @@ import Logo from '../../assets/svg/Logo.svg'
 import Song from '../../components/js/SongObject'
 import Api from '../../services/Api'
 import io from 'socket.io-client'
+import info from '../../Info'
 import "../css/Game.css"
 
 import Bronze from '../../assets/svg/trophies/Bronze.svg'
@@ -68,7 +69,7 @@ export default class Game extends React.Component {
                 }
                 return this.props.history.push(nextLocation)
             }
-            const socket = io("http://187.181.244.91:3333/", {
+            const socket = io(`http://${info.serverIp}:${info.severPort}/`, {
                 query: {
                     roomId: this.props.match.params.id,
                     username
@@ -114,7 +115,7 @@ export default class Game extends React.Component {
 
             socket.on("removePlayer", (command) => {
                 if (command.username) {
-                    delete this.state.players[this.state.players.findIndex((item) => {if (item) { return item.username === command.username }})]
+                    delete this.state.players[this.state.players.findIndex((item) => {if (item) { return item.username === command.username } else {return undefined}})]
                     this.setState({
                         messages: this.state.messages.concat([{
                             message: `The player ${command.username} has left the room`
@@ -134,7 +135,7 @@ export default class Game extends React.Component {
             })
 
             socket.on("changeState", (command) => {
-                const player = this.state.players[this.state.players.findIndex((item) => {if (item) { return item.username === command.username }})]
+                const player = this.state.players[this.state.players.findIndex((item) => {if (item) { return item.username === command.username } else {return undefined}})]
                 player.score = command.score
                 player.state = command.state
                 this.setState({players: this.state.players});
@@ -144,7 +145,7 @@ export default class Game extends React.Component {
                 const playersSorted = this.state.players.sort((a,b) => {return a.username > b.username ? 1 : a.username < b.username ? -1 : 0}).sort((a,b) => {return a.score - b.score})
                 playersSorted.reverse()
                 this.state.players.forEach((player) => player.score = 0)
-                const winner = playersSorted.filter((player) => {if (player) {return player}})
+                const winner = playersSorted.filter((player) => {if (player) {return player} else {return undefined}})
                 const winMessages = [{
                     message: "We have the WINNERSS"
                 },{
@@ -186,7 +187,6 @@ export default class Game extends React.Component {
 
     async componentDidMount() {
         const guessResponse = document.getElementById("guessResponse")        
-        const guessInput = document.getElementById("guessInput")
         guessResponse.addEventListener("animationend", () => {
             guessResponse.hidden = true
             guessResponse.style.webkitAnimationPlayState = "paused"
